@@ -52,7 +52,10 @@ export const createUser: RequestHandler = CatchAsync(
 
 export const updateUser: RequestHandler = CatchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const user = await User.findByIdAndUpdate(req.params.id);
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!user) return next(createHttpError(404, "no user found with that id"));
 

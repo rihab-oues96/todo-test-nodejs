@@ -1,4 +1,6 @@
 import Joi from "joi";
+import { IComment } from "../models/CommentModel";
+import { ITask } from "../models/TaskModel";
 import { IUser } from "../models/UserModel";
 
 export const validateLoginData = (login: {
@@ -21,4 +23,32 @@ export const validateUserData = (user: IUser) => {
     active: Joi.boolean(),
   });
   return userSchema.validate(user);
+};
+
+export const validateTaskData = (task: ITask) => {
+  const taskSchema = Joi.object<ITask>({
+    title: Joi.string().required().max(60),
+    description: Joi.string().required(),
+    completed: Joi.boolean().required(),
+    createdBy: Joi.string()
+      .required()
+      .regex(/^[0-9a-fA-F]{24}$/, "object Id"),
+  });
+
+  return taskSchema.validate(task);
+};
+
+export const validateCommentData = (comment: IComment) => {
+  const commentSchema = Joi.object<IComment>({
+    comment: Joi.string().required(),
+    createdAt: Joi.date().required(),
+    task: Joi.string()
+      .required()
+      .regex(/^[0-9a-fA-F]{24}$/, "object Id"),
+    createdBy: Joi.string()
+      .required()
+      .regex(/^[0-9a-fA-F]{24}$/, "object Id"),
+  });
+
+  return commentSchema.validate(comment);
 };

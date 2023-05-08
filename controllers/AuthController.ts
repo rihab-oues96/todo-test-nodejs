@@ -5,7 +5,6 @@ import { ObjectId } from "mongoose";
 import User from "../models/UserModel";
 import catchAsync from "../utils/CatchAsync";
 const bcrypt = require("bcryptjs");
-const { promisify } = require("util");
 
 declare var process: {
   env: {
@@ -15,20 +14,22 @@ declare var process: {
   };
 };
 
-const signToken = (id: ObjectId) => {
+const generateToken = (id: ObjectId) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 };
 
 const createSendToken = (user: any, statusCode: number, res: Response) => {
-  const token = signToken(user._id!);
+  const token = generateToken(user._id!);
+
   const cookieOptions = {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
   };
+
   res.cookie("jwt", token, cookieOptions);
   user.password = undefined;
   res.status(statusCode).json({
@@ -65,7 +66,9 @@ export const Login: RequestHandler = catchAsync(
   }
 );
 
-export const Logout: RequestHandler = async (req, res, next) => {};
+export const Logout: RequestHandler = async (req, res, next) => {
+  res.clearCookie("jwt");
+};
 
 export const protect = async (req: any, res: Response, next: NextFunction) => {
   let token;
@@ -82,10 +85,9 @@ export const protect = async (req: any, res: Response, next: NextFunction) => {
   }
 
   const decoded: any = await jwt.verify(token, process.env.JWT_SECRET);
-  console.log("decoded", decoded);
 
   const currentUser = await User.findById(decoded.id);
-  console.log("currentUser", currentUser);
+  console.log("currentUser  : ", currentUser?.firstName, currentUser?.id);
 
   if (!currentUser) {
     return next(

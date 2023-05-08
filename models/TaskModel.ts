@@ -3,9 +3,10 @@ import { InferSchemaType, model, ObjectId, Schema } from "mongoose";
 export interface ITask extends Document {
   title: string;
   description: string;
-  completed?: boolean;
-  comments?: ObjectId[];
-  createdBy?: ObjectId;
+  completed: boolean;
+  createdBy: ObjectId;
+  comments: ObjectId[];
+  sharedTo?: ObjectId[];
 }
 
 const TaskSchema = new Schema({
@@ -27,6 +28,13 @@ const TaskSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
   },
+
+  sharedTo: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
 });
 
 TaskSchema.virtual("comments", {

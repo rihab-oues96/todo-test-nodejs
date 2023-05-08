@@ -1,4 +1,11 @@
-import { InferSchemaType, model, Schema } from "mongoose";
+import { Date, InferSchemaType, model, ObjectId, Schema } from "mongoose";
+
+export interface IComment extends Document {
+  comment: string;
+  createdAt: Date;
+  task: string;
+  createdBy: ObjectId;
+}
 
 const CommentSchema = new Schema(
   {
@@ -16,7 +23,7 @@ const CommentSchema = new Schema(
       ref: "Task",
     },
 
-    creator: {
+    createdBy: {
       type: Schema.Types.ObjectId,
     },
   },
